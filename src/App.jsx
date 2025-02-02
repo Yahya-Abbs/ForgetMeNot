@@ -15,15 +15,14 @@ function App() {
   const [data1, setData1] = useState([]); // BPM data for Heart Rate graph
   const [data2, setData2] = useState([]); // SpO₂ data for Oxygen Saturation graph
 
-  // State for fall detection: once true, it remains true until dismissed
+  // State for fall detection
   const [fallDetected, setFallDetected] = useState(false);
 
   // Audio ref for the alarm sound
   const alarmAudioRef = useRef(null);
 
-  // Change this to your ESP32's IP address
   const ESP32_IP = "http://192.168.246.4";
-  const FETCH_INTERVAL = 5000; // Poll every 5 seconds
+  const FETCH_INTERVAL = 1000; // Poll every 5 seconds
 
   useEffect(() => {
     // Function to fetch data from the ESP32
@@ -32,17 +31,14 @@ function App() {
         .then((res) => res.json())
         .then((data) => {
           console.log("Received Data:", data);
-          
-          // Update Heart Rate (BPM) graph data: keep the latest 10 data points
+       
           setData1((prev) =>
             [...prev, { time: new Date().toLocaleTimeString(), value: data.bpm }].slice(-10)
           );
-          // Update Oxygen Saturation (SpO₂) graph data: keep the latest 10 data points
           setData2((prev) =>
             [...prev, { time: new Date().toLocaleTimeString(), value: data.spo2 }].slice(-10)
           );
-          // Once a fall is detected (data.fall is 1), keep the alarm active.
-          // Use a functional state update to preserve a previously detected fall.
+
           setFallDetected(prev => prev || (data.fall === 1));
         })
         .catch((err) => console.error("Error fetching data:", err));
@@ -91,16 +87,13 @@ function App() {
         loop
       />
       <div className="max-w-7xl mx-auto space-y-16">
-        {/* Page Header */}
         <h1 className="text-6xl font-bold text-center mb-12 flex justify-center items-center gap-4">
           <Heart className="w-16 h-16 text-red-500" />
           Patient Status
         </h1>
 
         <div className="grid grid-cols-3 gap-16">
-          {/* Left Column: Graphs */}
           <div className="col-span-2 space-y-16">
-            {/* Heart Rate Graph */}
             <div className="bg-gray-900 border border-gray-700 rounded-2xl p-10 shadow-xl">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-3xl font-semibold">Heart Rate</h2>
